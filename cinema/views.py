@@ -104,8 +104,11 @@ class MovieSessionViewSet(CinemaBaseViewSet):
         MovieSession.objects.all()
         .select_related("movie", "cinema_hall")
         .annotate(
-            tickets_available=F("cinema_hall__rows") * F
-            ("cinema_hall__seats_in_row") - Count("tickets")
+            tickets_available=(
+                F("cinema_hall__rows")
+                * F("cinema_hall__seats_in_row")
+                - Count("tickets")
+            )
         )
     )
     serializer_class = MovieSessionSerializer
@@ -146,8 +149,10 @@ class OrderViewSet(CinemaBaseViewSet):
     )
     serializer_class = OrderSerializer
     pagination_class = OrderPagination
-    permission_classes = (IsAuthenticated,
-                          allow_only_actions("list", "create"),)
+    permission_classes = (
+        IsAuthenticated,
+        allow_only_actions("list", "create"),
+    )
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
